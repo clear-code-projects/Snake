@@ -2,10 +2,10 @@ import pygame, sys, random
 from vec import Vector2
 
 
-left = Vector2(-1, 0)
-up = Vector2(0, -1)
 right = Vector2(1, 0)
 down = Vector2(0, 1)
+left = -right
+up = -down
 
 
 class SNAKE:
@@ -181,18 +181,9 @@ while True:
 		if event.type == SCREEN_UPDATE:
 			main_game.update()
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_UP:
-				if main_game.snake.direction.y != 1:
-					main_game.snake.direction = Vector2(0,-1)
-			if event.key == pygame.K_RIGHT:
-				if main_game.snake.direction.x != -1:
-					main_game.snake.direction = Vector2(1,0)
-			if event.key == pygame.K_DOWN:
-				if main_game.snake.direction.y != -1:
-					main_game.snake.direction = Vector2(0,1)
-			if event.key == pygame.K_LEFT:
-				if main_game.snake.direction.x != 1:
-					main_game.snake.direction = Vector2(-1,0)
+			for key, direction in (pygame.K_UP, up), (pygame.K_RIGHT, right), (pygame.K_DOWN, down), (pygame.K_LEFT, left):
+				if event.key == key and main_game.snake.direction != -direction:
+					main_game.snake.direction = direction
 
 	screen.fill((175,215,70))
 	main_game.draw_elements()
