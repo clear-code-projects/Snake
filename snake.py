@@ -1,17 +1,44 @@
 import pygame,sys,random
 from pygame.math import Vector2
 
+def add(x,y):
+		sum = x+y
+		return(sum) 
+
 class SNAKE:
 	def __init__(self):
 		self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
 		self.direction = Vector2(0,0)
 		self.new_block = False
 
+		self.head_up = None
+		self.head_down = None
+		self.head_right = None
+		self.head_left = None
+		
+		self.head = self.head_up
+
+		self.tail_up = None
+		self.tail_down = None
+		self.tail_right = None
+		self.tail_left = None
+
+		self.body_vertical = None
+		self.body_horizontal = None
+
+		self.body_tr = None
+		self.body_tl = None
+		self.body_br = None
+		self.body_bl = None
+		self.crunch_sound = pygame.mixer.Sound('Sound/crunch.wav')
+
+		self.load_images()
+	def load_images(self):
 		self.head_up = pygame.image.load('Graphics/head_up.png').convert_alpha()
 		self.head_down = pygame.image.load('Graphics/head_down.png').convert_alpha()
 		self.head_right = pygame.image.load('Graphics/head_right.png').convert_alpha()
 		self.head_left = pygame.image.load('Graphics/head_left.png').convert_alpha()
-		
+
 		self.tail_up = pygame.image.load('Graphics/tail_up.png').convert_alpha()
 		self.tail_down = pygame.image.load('Graphics/tail_down.png').convert_alpha()
 		self.tail_right = pygame.image.load('Graphics/tail_right.png').convert_alpha()
@@ -24,8 +51,6 @@ class SNAKE:
 		self.body_tl = pygame.image.load('Graphics/body_tl.png').convert_alpha()
 		self.body_br = pygame.image.load('Graphics/body_br.png').convert_alpha()
 		self.body_bl = pygame.image.load('Graphics/body_bl.png').convert_alpha()
-		self.crunch_sound = pygame.mixer.Sound('Sound/crunch.wav')
-
 	def draw_snake(self):
 		self.update_head_graphics()
 		self.update_tail_graphics()
@@ -57,13 +82,17 @@ class SNAKE:
 						screen.blit(self.body_br,block_rect)
 
 	def update_head_graphics(self):
-		head_relation = self.body[1] - self.body[0]
+		if self.head_up is None:
+			self.load_images()
+		head_relation = self.body[-2] - self.body[-1]
 		if head_relation == Vector2(1,0): self.head = self.head_left
 		elif head_relation == Vector2(-1,0): self.head = self.head_right
 		elif head_relation == Vector2(0,1): self.head = self.head_up
 		elif head_relation == Vector2(0,-1): self.head = self.head_down
 
 	def update_tail_graphics(self):
+		if self.tail_up is None:
+			self.load_images()
 		tail_relation = self.body[-2] - self.body[-1]
 		if tail_relation == Vector2(1,0): self.tail = self.tail_left
 		elif tail_relation == Vector2(-1,0): self.tail = self.tail_right
@@ -171,42 +200,49 @@ class MAIN:
 		screen.blit(apple,apple_rect)
 		pygame.draw.rect(screen,(56,74,12),bg_rect,2)
 
-pygame.mixer.pre_init(44100,-16,2,512)
-pygame.init()
-cell_size = 40
-cell_number = 20
-screen = pygame.display.set_mode((cell_number * cell_size,cell_number * cell_size))
-clock = pygame.time.Clock()
-apple = pygame.image.load('Graphics/apple.png').convert_alpha()
-game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
+if __name__ == "__main__":
+	pygame.mixer.pre_init(44100,-16,2,512)
+	pygame.init()
+	cell_size = 30
+	cell_number = 20
+	screen = pygame.display.set_mode((cell_number * cell_size,cell_number * cell_size))
+	clock = pygame.time.Clock()
+	apple = pygame.image.load('Graphics/apple.png').convert_alpha()
+	game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
-SCREEN_UPDATE = pygame.USEREVENT
-pygame.time.set_timer(SCREEN_UPDATE,150)
+	SCREEN_UPDATE = pygame.USEREVENT
+	pygame.time.set_timer(SCREEN_UPDATE,150)
 
-main_game = MAIN()
+	main_game = MAIN()
 
-while True:
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			pygame.quit()
-			sys.exit()
-		if event.type == SCREEN_UPDATE:
-			main_game.update()
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_UP:
-				if main_game.snake.direction.y != 1:
-					main_game.snake.direction = Vector2(0,-1)
-			if event.key == pygame.K_RIGHT:
-				if main_game.snake.direction.x != -1:
-					main_game.snake.direction = Vector2(1,0)
-			if event.key == pygame.K_DOWN:
-				if main_game.snake.direction.y != -1:
-					main_game.snake.direction = Vector2(0,1)
-			if event.key == pygame.K_LEFT:
-				if main_game.snake.direction.x != 1:
-					main_game.snake.direction = Vector2(-1,0)
+	while True:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
+			if event.type == SCREEN_UPDATE:
+				main_game.update()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_UP:
+					if main_game.snake.direction.y != 1:
+						main_game.snake.direction = Vector2(0,-1)
+				if event.key == pygame.K_RIGHT:
+					if main_game.snake.direction.x != -1:
+						main_game.snake.direction = Vector2(1,0)
+				if event.key == pygame.K_DOWN:
+					if main_game.snake.direction.y != -1:
+						main_game.snake.direction = Vector2(0,1)
+				if event.key == pygame.K_LEFT:
+					if main_game.snake.direction.x != 1:
+						main_game.snake.direction = Vector2(-1,0)
 
-	screen.fill((175,215,70))
-	main_game.draw_elements()
-	pygame.display.update()
-	clock.tick(60)
+		screen.fill((155,155,50))
+		main_game.draw_elements()
+		pygame.display.update()
+		clock.tick(60)
+                             
+
+   
+
+	# https://www.geeksforgeeks.org/object-oriented-testing-in-python/
+	# https://www.youtube.com/watch?v=6tNS--WetLI                     
